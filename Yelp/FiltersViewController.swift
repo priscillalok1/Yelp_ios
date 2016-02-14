@@ -26,13 +26,12 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
     @IBOutlet weak var tableView: UITableView!
     weak var delegate: FiltersViewControllerDelegate?
 
-    var filters: [String:AnyObject]!
-    var dealOptions: Bool! = false
+    var shouldIncludeDeals: Bool! = false
     var sortByOptions: [[String:AnyObject]]! // dict of {string: int, string: int ...}
     var distanceOptions: [[String:AnyObject]]!
     var categoryOptions: [[String:String]]!
 
-    var switchStates = [Int:Bool]()
+    var categorySwitchStates = [Int:Bool]()
     
     var tableStructure:[AnyObject]!
     
@@ -41,7 +40,7 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
     override func viewDidLoad() {
         super.viewDidLoad()
         initFilterTypes()
-        tableStructure = [dealOptions, sortByOptions, distanceOptions, categoryOptions]
+        tableStructure = [shouldIncludeDeals, sortByOptions, distanceOptions, categoryOptions]
         self.isExpanded = [false, false, false, false]
 
         tableView.delegate = self
@@ -60,6 +59,10 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
 
     @IBAction func onSearchButton(sender: AnyObject) {
         dismissViewControllerAnimated(true, completion: nil)
+        let filteredCategories = searchCategories(categorySwitchStates)
+        var filters = [String:AnyObject]()
+        filters["categories"] = filteredCategories
+        filters["deals"] = shouldIncludeDeals
 //        var filters = [String:AnyObject]()
 //        var selectedCategories = [String]()
 //        for (row,isSelected) in switchStates {
@@ -109,7 +112,11 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
         let filterType: filterTypes = filterTypeFromIndex(indexPath.section)
         switch(filterType) {
         case .Deals:
-            return tableView.dequeueReusableCellWithIdentifier("SwitchCell", forIndexPath: indexPath) as! SwitchCell
+            let cell =  tableView.dequeueReusableCellWithIdentifier("SwitchCell", forIndexPath: indexPath) as! SwitchCell
+            cell.switchLabel.text = "Deals"
+            cell.delegate = self
+            cell.onSwitch.on = shouldIncludeDeals
+            return cell
         case .SortBy:
             return tableView.dequeueReusableCellWithIdentifier("SwitchCell", forIndexPath: indexPath) as! SwitchCell
         case .Distance:
@@ -119,7 +126,7 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
             cell.switchLabel.text = categoryOptions[indexPath.row]["name"]
             cell.delegate = self
             
-            cell.onSwitch.on = switchStates[indexPath.row] ?? false
+            cell.onSwitch.on = categorySwitchStates[indexPath.row] ?? false
             return cell
         case .Unknown:
             return tableView.dequeueReusableCellWithIdentifier("SwitchCell", forIndexPath: indexPath) as! SwitchCell
@@ -131,7 +138,7 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 4
     }
-    //MARK - search functions
+    //MARK: - private methods
     
     func filterTypeFromIndex (index: Int) -> filterTypes {
         switch (index) {
@@ -147,6 +154,7 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
             return filterTypes.Unknown
         }
     }
+    
     func searchCategories (switchStates: [Int:Bool]) -> [String]{
         var selectedCategories = [String]()
         for (row,isSelected) in switchStates {
@@ -159,7 +167,9 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     
     
-    //MARK - categories
+    
+    
+    //MARK: - categories
     func initFilterTypes() {
         sortByOptions = [
             ["name": "Best Matched", "code":0],
@@ -351,8 +361,21 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
 extension FiltersViewController: SwitchCellDelegate  {
     func switchCell(switchCell: SwitchCell, didChangeValue value: Bool) {
         let indexPath = tableView.indexPathForCell(switchCell)!
-        switchStates[indexPath.row] = value
+        let filterType: filterTypes = filterTypeFromIndex(indexPath.section)
         
-        print(searchCategories(switchStates))
+        switch(filterType) {
+        case .Deals:
+            shouldIncludeDeals = value
+        case .SortBy:
+            print ("Sorty by")
+        case .Distance:
+            print ("Distance")
+        case .Categories:
+            categorySwitchStates[indexPath.row] = value
+        case .Unknown:
+            print ("unknown")
+        }
+        
+       print(searchCategories(categorySwitchStates))
     }
 }
