@@ -16,6 +16,8 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
     var searchActive: Bool = false
     var isMoreDataLoading = false
     
+    var currFilters: [String: AnyObject]?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -31,7 +33,7 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 120
         
-        Business.searchWithTerm("Thai", completion: { (businesses: [Business]!, error: NSError!) -> Void in
+        Business.searchWithTerm("Restaurants", completion: { (businesses: [Business]!, error: NSError!) -> Void in
             self.businesses = businesses
             self.tableView.reloadData()
             for business in businesses {
@@ -63,14 +65,20 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         let navigationcontroller = segue.destinationViewController as! UINavigationController
         let filtersViewController = navigationcontroller.topViewController as! FiltersViewController
-        
         filtersViewController.delegate = self
+        
+        if currFilters != nil {
+            filtersViewController.filters = currFilters!
+        }
     }
 
     func filtersViewController(filtersViewController: FiltersViewController, didUpdateFilters filters: [String : AnyObject]) {
+        currFilters = filters
         let categories = filters["categories"] as? [String]
         let deals = filters["deals"] as? Bool
-        Business.searchWithTerm("Restaurants", sort: nil, categories: categories, deals: deals) {
+        let sort = YelpSortMode(rawValue: (filters["sort"]!["code"] as? Int)!)!
+        let distance = filters["distance"]!["code"] as? Int
+        Business.searchWithTerm("Restaurants", sort: sort, categories: categories, deals: deals, distance: distance) {
             (businesses: [Business]!, error: NSError!) -> Void in
             self.businesses = businesses
             self.tableView.reloadData()

@@ -28,23 +28,32 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
 
     var shouldIncludeDeals: Bool! = false
     var sortByOptions: [[String:AnyObject]]! // dict of {string: int, string: int ...}
+    var currSortByFilter: Int!
     var distanceOptions: [[String:AnyObject]]!
+    var currMaxDistance: Int!
     var categoryOptions: [[String:String]]!
-
     var categorySwitchStates = [Int:Bool]()
     
-    var tableStructure:[AnyObject]!
-    
-    var testSwitchIsToggled: Bool! = false
+    var filters = [String:AnyObject]()
+//    var testSwitchIsToggled: Bool! = false
     
     var isExpanded = [Bool]() //keeps array of if each section is expanded or not
     
     override func viewDidLoad() {
         super.viewDidLoad()
         initFilterTypes()
-        tableStructure = [shouldIncludeDeals, sortByOptions, distanceOptions, categoryOptions]
-        self.isExpanded = [false, false, false, false]
-
+        self.isExpanded = [false, false, false, true]
+        
+        currSortByFilter = (filters["sort"] == nil ? 0 : filters["sort"]!["code"] as? Int)
+        if(filters["distance"] != nil) {
+            let currDistanceOptionCode = filters["distance"]!["code"] as! Int
+            let index = distanceOptions.indexOf ({ $0["code"] as! Int == currDistanceOptionCode })
+            currMaxDistance = index
+        } else {
+            currMaxDistance = 0
+        }
+        shouldIncludeDeals = (filters["deals"] == nil ? false : filters["deals"] as? Bool)
+        
         tableView.delegate = self
         tableView.dataSource = self
         
@@ -62,27 +71,15 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
     @IBAction func onSearchButton(sender: AnyObject) {
         dismissViewControllerAnimated(true, completion: nil)
         let filteredCategories = searchCategories(categorySwitchStates)
-        var filters = [String:AnyObject]()
         filters["categories"] = filteredCategories
         filters["deals"] = shouldIncludeDeals
-//        var filters = [String:AnyObject]()
-//        var selectedCategories = [String]()
-//        for (row,isSelected) in switchStates {
-//            if isSelected {
-//                selectedCategories.append(categories[row]["code"]!)
-//            }
-//        }
-//        if selectedCategories.count > 0 {
-//            filters["categories"] = selectedCategories
-//        }
+        filters["sort"] = sortByOptions[currSortByFilter]
+        filters["distance"] = distanceOptions[currMaxDistance]
         delegate?.filtersViewController?(self, didUpdateFilters: filters)
     }
 
-
-    //MARK - cell delegate methods
-
     
-    //MARK - table functions
+    //MARK: - table functions
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         let filterType: filterTypes = filterTypeFromIndex(section)
         switch(filterType) {
@@ -106,19 +103,22 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
         case .Deals:
             return 1
         case .SortBy:
-            if testSwitchIsToggled == true {
-                return 3
+            if isExpanded[1] == true {
+                return sortByOptions.count
             } else {
                 return 1
             }
         case .Distance:
-            return 1
+            if isExpanded [2] == true {
+                return distanceOptions.count
+            } else {
+                return 1
+            }
         case .Categories:
             return 6
         case .Unknown:
             return 0
         }
-        
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -131,31 +131,76 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
             cell.onSwitch.on = shouldIncludeDeals
             return cell
         case .SortBy:
-            let cell = tableView.dequeueReusableCellWithIdentifier("SwitchCell", forIndexPath: indexPath) as! SwitchCell
-            cell.switchLabel.text = "expand/no"
-            cell.onSwitch.on = testSwitchIsToggled
-            cell.delegate = self
+            let cell = tableView.dequeueReusableCellWithIdentifier("ChoiceCell", forIndexPath: indexPath) as! ChoiceCell
+            if !isExpanded[1] {
+                cell.choiceLabel.text = sortByOptions[currSortByFilter]["name"] as? String
+                cell.accessoryType = UITableViewCellAccessoryType.Checkmark
+            } else {
+                cell.choiceLabel.text = sortByOptions[indexPath.row]["name"] as? String
+                cell.accessoryType = (indexPath.row == currSortByFilter ?
+                    UITableViewCellAccessoryType.Checkmark : UITableViewCellAccessoryType.None)
+            }
             return cell
         case .Distance:
-            return tableView.dequeueReusableCellWithIdentifier("SwitchCell", forIndexPath: indexPath) as! SwitchCell
+            let cell = tableView.dequeueReusableCellWithIdentifier("ChoiceCell", forIndexPath: indexPath) as! ChoiceCell
+            if !isExpanded[2] {
+                cell.choiceLabel.text = distanceOptions[currMaxDistance]["name"] as? String
+                cell.accessoryType = UITableViewCellAccessoryType.Checkmark
+            } else {
+                cell.choiceLabel.text = distanceOptions[indexPath.row]["name"] as? String
+                cell.accessoryType = (indexPath.row == currMaxDistance ?
+                    UITableViewCellAccessoryType.Checkmark : UITableViewCellAccessoryType.None)
+            }
+            return cell
         case .Categories:
             let cell = tableView.dequeueReusableCellWithIdentifier("SwitchCell", forIndexPath: indexPath) as! SwitchCell
             cell.switchLabel.text = categoryOptions[indexPath.row]["name"]
             cell.delegate = self
-            
             cell.onSwitch.on = categorySwitchStates[indexPath.row] ?? false
             return cell
         case .Unknown:
             return tableView.dequeueReusableCellWithIdentifier("SwitchCell", forIndexPath: indexPath) as! SwitchCell
         }
-
-        
     }
     
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 4
     }
+    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        let filterType: filterTypes = filterTypeFromIndex(indexPath.section)
+        switch(filterType) {
+        case .Deals:
+            print ("here")
+        case .SortBy:
+            if isExpanded[1] == true {
+                if indexPath.row != currSortByFilter {
+                    currSortByFilter = indexPath.row
+                }
+                isExpanded [1] = false
+            } else {
+                isExpanded [1] = true
+            }
+            tableView.reloadSections(NSIndexSet(index: 1), withRowAnimation: UITableViewRowAnimation.Fade)
+            
+        case .Distance:
+            if isExpanded[2] == true {
+                if indexPath.row != currMaxDistance{
+                    currMaxDistance = indexPath.row
+                }
+                isExpanded [2] = false
+            } else {
+                isExpanded [2] = true
+            }
+            tableView.reloadSections(NSIndexSet(index: 2), withRowAnimation: UITableViewRowAnimation.Fade)
+        case .Categories:
+            print ("over there")
+        case .Unknown:
+            print ("all the way over there")
+        }
+    }
+    
     //MARK: - private methods
     
     func filterTypeFromIndex (index: Int) -> filterTypes {
@@ -183,22 +228,15 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
         return selectedCategories
     }
     
-    
-    
-    
-    
     //MARK: - categories
     func initFilterTypes() {
         sortByOptions = [
-            ["name": "Best Matched", "code":0],
-            ["name": "Distance", "code":1],
-            ["name": "HighestRated", "code":2]
+            ["name": "Best Matched", "code":YelpSortMode.BestMatched.rawValue],
+            ["name": "Distance", "code":YelpSortMode.Distance.rawValue],
+            ["name": "Highest Rated", "code":YelpSortMode.HighestRated.rawValue]
         ]
         distanceOptions = [
-            [
-              "name": "0.3 mi",
-              "code":804
-            ],
+            ["name": "0.3 mi","code":483],
             ["name": "1 mi", "code":1609],
             ["name": "5 mi", "code":8046],
             ["name": "20 mi", "code":32186]
@@ -385,8 +423,9 @@ extension FiltersViewController: SwitchCellDelegate  {
         case .Deals:
             shouldIncludeDeals = value
         case .SortBy:
-            testSwitchIsToggled = value
-            tableView.reloadSections(NSIndexSet(index: 1), withRowAnimation: UITableViewRowAnimation.Fade)
+            print ("Sort By")
+//            testSwitchIsToggled = value
+//            tableView.reloadSections(NSIndexSet(index: 1), withRowAnimation: UITableViewRowAnimation.Fade)
         case .Distance:
             print ("Distance")
         case .Categories:
@@ -398,3 +437,4 @@ extension FiltersViewController: SwitchCellDelegate  {
        print(searchCategories(categorySwitchStates))
     }
 }
+
