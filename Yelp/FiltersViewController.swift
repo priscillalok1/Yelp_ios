@@ -35,6 +35,8 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     var tableStructure:[AnyObject]!
     
+    var testSwitchIsToggled: Bool! = false
+    
     var isExpanded = [Bool]() //keeps array of if each section is expanded or not
     
     override func viewDidLoad() {
@@ -99,13 +101,24 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if(!self.isExpanded[section]) {
-            if section == 3 {
-                return 6
-            }
+        let filterType: filterTypes = filterTypeFromIndex(section)
+        switch(filterType) {
+        case .Deals:
             return 1
+        case .SortBy:
+            if testSwitchIsToggled == true {
+                return 3
+            } else {
+                return 1
+            }
+        case .Distance:
+            return 1
+        case .Categories:
+            return 6
+        case .Unknown:
+            return 0
         }
-        return self.tableStructure[section].count
+        
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -118,7 +131,11 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
             cell.onSwitch.on = shouldIncludeDeals
             return cell
         case .SortBy:
-            return tableView.dequeueReusableCellWithIdentifier("SwitchCell", forIndexPath: indexPath) as! SwitchCell
+            let cell = tableView.dequeueReusableCellWithIdentifier("SwitchCell", forIndexPath: indexPath) as! SwitchCell
+            cell.switchLabel.text = "expand/no"
+            cell.onSwitch.on = testSwitchIsToggled
+            cell.delegate = self
+            return cell
         case .Distance:
             return tableView.dequeueReusableCellWithIdentifier("SwitchCell", forIndexPath: indexPath) as! SwitchCell
         case .Categories:
@@ -134,6 +151,7 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
 
         
     }
+    
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 4
@@ -367,7 +385,8 @@ extension FiltersViewController: SwitchCellDelegate  {
         case .Deals:
             shouldIncludeDeals = value
         case .SortBy:
-            print ("Sorty by")
+            testSwitchIsToggled = value
+            tableView.reloadSections(NSIndexSet(index: 1), withRowAnimation: UITableViewRowAnimation.Fade)
         case .Distance:
             print ("Distance")
         case .Categories:
