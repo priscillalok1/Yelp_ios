@@ -45,7 +45,7 @@ Here's a walkthrough of implemented user stories:
 
 Note: Simulation bug prevents some tableView lines from displaying without proper scale and resolution
 
-![Video Walkthrough](yelpGiphy.gif)
+![Video Walkthrough](yelpGiphy_2.gif)
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
