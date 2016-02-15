@@ -74,7 +74,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Thai, Seafood, Salad" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fB0-AJ-wAV">
-                                                    <rect key="frame" x="78" y="66" width="125" height="16"/>
+                                                    <rect key="frame" x="78" y="66" width="201" height="16"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                     <color key="textColor" red="0.52882339015151525" green="0.52882339015151525" blue="0.52882339015151525" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
@@ -95,6 +95,7 @@
                                                 <constraint firstItem="SqS-HW-bb2" firstAttribute="top" secondItem="F1M-wu-1Li" secondAttribute="top" constant="8" id="iD5-MI-aCm"/>
                                                 <constraint firstAttribute="trailing" secondItem="TNr-dA-oiG" secondAttribute="trailing" constant="8" id="if2-Sc-f5C"/>
                                                 <constraint firstAttribute="trailing" secondItem="loT-Tb-qJ0" secondAttribute="trailing" constant="8" id="ke3-WZ-HUO"/>
+                                                <constraint firstAttribute="trailing" secondItem="fB0-AJ-wAV" secondAttribute="trailing" constant="8" id="l24-JF-gZZ"/>
                                                 <constraint firstItem="egC-d4-em9" firstAttribute="leading" secondItem="F1M-wu-1Li" secondAttribute="leading" constant="8" id="osa-M4-Uf6"/>
                                                 <constraint firstAttribute="trailing" secondItem="xmy-OD-mui" secondAttribute="trailing" constant="8" id="qe4-kj-Hv9"/>
                                                 <constraint firstItem="loT-Tb-qJ0" firstAttribute="top" secondItem="T7A-Q0-Ydc" secondAttribute="bottom" constant="4" id="stT-nE-hEw"/>

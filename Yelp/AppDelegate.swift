@@ -18,9 +18,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         let navigationBarAppearace = UINavigationBar.appearance()
         let backBarAppearance = UIBarButtonItem.appearance()
+        let font = UIFont(name: "HelveticaNeue", size: 17)
         
         let customColor = UIColor(red: 0.8667, green: 0.0157, blue: 0.0157, alpha: 1.0)
         
+        navigationBarAppearace.titleTextAttributes = [NSFontAttributeName : font!, NSForegroundColorAttributeName : UIColor.whiteColor()]
         backBarAppearance.tintColor = UIColor.whiteColor()
         backBarAppearance.style = UIBarButtonItemStyle.Plain
         navigationBarAppearace.barTintColor = customColor
