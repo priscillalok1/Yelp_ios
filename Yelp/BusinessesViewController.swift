@@ -65,19 +65,24 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        let navigationcontroller = segue.destinationViewController as! UINavigationController
+        print (segue.identifier!)
         if segue.identifier == "filtersSegue" {
+            let navigationcontroller = segue.destinationViewController as! UINavigationController
             let filtersViewController = navigationcontroller.topViewController as! FiltersViewController
             filtersViewController.delegate = self
             if currFilters != nil {
                 filtersViewController.filters = currFilters!
             }
         } else if segue.identifier == "mapSegue" {
+            let navigationcontroller = segue.destinationViewController as! UINavigationController
             let mapViewController = navigationcontroller.topViewController as! MapViewController
             if self.businesses != nil {
                 mapViewController.businesses = self.businesses
             }
-            
+        } else if segue.identifier! == "detailSegue" {
+            let indexPath: NSIndexPath = tableView.indexPathForSelectedRow!
+            let detailViewController = segue.destinationViewController as! BusinessDetailsViewController
+            detailViewController.business = self.businesses[indexPath.row]
         }
     }
 
