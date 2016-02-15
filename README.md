@@ -28,12 +28,12 @@ The following **optional** features are implemented:
    - [x] Implement a custom switch instead of the default UISwitch.
    - [x] Distance filter should expand as in the real Yelp app
    - [x] Categories should show a subset of the full list with a "See All" row to expand. Category list is [here](http://www.yelp.com/developers/documentation/category_list).
-- [ ] Implement the restaurant detail page.
+- [x] Implement the restaurant detail page.
 
 The following **additional** features are implemented:
 
-- [ ] List anything else that you can get done to improve the app functionality!
-
+- [x] List anything else that you can get done to improve the app functionality!
+   - [x] Implement directions to restaurant in details view
 Please list two areas of the assignment you'd like to **discuss further with your peers** during the next class (examples include better ways to implement something, how to extend your app in certain ways, etc):
 
 1. Best Practices for reusing view controllers (ie. implementing filters for both table view and map view)
