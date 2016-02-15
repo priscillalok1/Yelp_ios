@@ -20,7 +20,6 @@ enum filterTypes : Int {
     case Unknown
 }
 
-
 class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     @IBOutlet weak var tableView: UITableView!
@@ -43,7 +42,8 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
         super.viewDidLoad()
         
         self.tableView.rowHeight = UITableViewAutomaticDimension
-        self.tableView.sectionHeaderHeight = 60
+        self.tableView.sectionHeaderHeight = 50
+        
         initFilterTypes()
         self.isExpanded = [false, false, false, false]
         
@@ -83,21 +83,31 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
 
     
     //MARK: - table functions
-    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    
+    func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let tempView: UIView = UIView(frame: CGRectMake(0,200,300,244))
+        tempView.backgroundColor = UIColor(red: 0.9294, green: 0.9294, blue: 0.9294, alpha: 1.0)
+        
+        let tempLabel: UILabel = UILabel(frame: CGRectMake(15, 5, 300, 44))
+        tempLabel.backgroundColor = UIColor.clearColor()
+        tempLabel.textColor = UIColor.darkGrayColor()
+        tempLabel.font = UIFont (name: "Helvetica Neue", size: 16)
         let filterType: filterTypes = filterTypeFromIndex(section)
         switch(filterType) {
         case .Deals:
-            return "Deals"
+            tempLabel.text = "DEALS"
         case .SortBy:
-            return "Sort By"
+            tempLabel.text = "SORT BY"
         case .Distance:
-            return "Distance"
+            tempLabel.text = "DISTANCE"
         case .Categories:
-            return "Categories"
+            tempLabel.text =  "CATEGORIES"
         case .Unknown:
-            return ""
+            tempLabel.text = ""
         }
-        
+
+        tempView.addSubview(tempLabel)
+        return tempView
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -133,7 +143,7 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
         switch(filterType) {
         case .Deals:
             let cell =  tableView.dequeueReusableCellWithIdentifier("SwitchCell", forIndexPath: indexPath) as! SwitchCell
-            cell.switchLabel.text = "Deals"
+            cell.switchLabel.text = "Offering a Deal"
             cell.delegate = self
             cell.onSwitch.on = shouldIncludeDeals
             return cell
@@ -439,16 +449,15 @@ extension FiltersViewController: SwitchCellDelegate  {
         case .Deals:
             shouldIncludeDeals = value
         case .SortBy:
-            print ("Sort By")
+            return
         case .Distance:
-            print ("Distance")
+            return
         case .Categories:
             categorySwitchStates[indexPath.row] = value
         case .Unknown:
-            print ("unknown")
+            return
         }
-        
-       print(searchCategories(categorySwitchStates))
+       // print(searchCategories(categorySwitchStates))
     }
 }
 

@@ -132,7 +132,7 @@
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" title="Map" id="hNZ-wg-BOe">
                             <connections>
-                                <segue destination="T7N-E7-8VR" kind="modal" id="WbZ-Y3-kKG"/>
+                                <segue destination="T7N-E7-8VR" kind="modal" identifier="mapSegue" id="WbZ-Y3-kKG"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -168,8 +168,8 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hKb-RK-YeI">
-                                                    <rect key="frame" x="14" y="18" width="42" height="21"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <rect key="frame" x="14" y="19" width="40" height="19"/>
+                                                    <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="16"/>
                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
@@ -197,8 +197,8 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SCB-sg-GP9">
-                                                    <rect key="frame" x="15" y="18" width="42" height="21"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <rect key="frame" x="15" y="19" width="40" height="19"/>
+                                                    <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="16"/>
                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
@@ -285,7 +285,13 @@
                             <constraint firstItem="RMb-Sh-otC" firstAttribute="top" secondItem="ctK-TV-JuJ" secondAttribute="top" id="xnR-E3-K4q"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="SkA-eu-psL"/>
+                    <navigationItem key="navigationItem" id="SkA-eu-psL">
+                        <barButtonItem key="leftBarButtonItem" title="Back" id="maa-Z0-v0T">
+                            <connections>
+                                <action selector="backButtonClicked:" destination="KZy-d0-oLc" id="Bve-m4-94A"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="mapView" destination="RMb-Sh-otC" id="wgz-iv-S6t"/>
                     </connections>

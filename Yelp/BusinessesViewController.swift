@@ -72,7 +72,13 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
             if currFilters != nil {
                 filtersViewController.filters = currFilters!
             }
-        } 
+        } else if segue.identifier == "mapSegue" {
+            let mapViewController = navigationcontroller.topViewController as! MapViewController
+            if self.businesses != nil {
+                mapViewController.businesses = self.businesses
+            }
+            
+        }
     }
 
     func filtersViewController(filtersViewController: FiltersViewController, didUpdateFilters filters: [String : AnyObject]) {
