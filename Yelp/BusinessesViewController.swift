@@ -17,6 +17,7 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
     var isMoreDataLoading = false
     
     var currFilters: [String: AnyObject]?
+    var currOffset: Int?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,8 +33,9 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         tableView.dataSource = self
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 120
+        currOffset = 0
         
-        Business.searchWithTerm("Restaurants", completion: { (businesses: [Business]!, error: NSError!) -> Void in
+        Business.searchWithTerm("Restaurants", offset: currOffset, completion: { (businesses: [Business]!, error: NSError!) -> Void in
             self.businesses = businesses
             self.tableView.reloadData()
             for business in businesses {
@@ -64,12 +66,13 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         let navigationcontroller = segue.destinationViewController as! UINavigationController
-        let filtersViewController = navigationcontroller.topViewController as! FiltersViewController
-        filtersViewController.delegate = self
-        
-        if currFilters != nil {
-            filtersViewController.filters = currFilters!
-        }
+        if segue.identifier == "filtersSegue" {
+            let filtersViewController = navigationcontroller.topViewController as! FiltersViewController
+            filtersViewController.delegate = self
+            if currFilters != nil {
+                filtersViewController.filters = currFilters!
+            }
+        } 
     }
 
     func filtersViewController(filtersViewController: FiltersViewController, didUpdateFilters filters: [String : AnyObject]) {
@@ -78,27 +81,58 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         let deals = filters["deals"] as? Bool
         let sort = YelpSortMode(rawValue: (filters["sort"]!["code"] as? Int)!)!
         let distance = filters["distance"]!["code"] as? Int
-        Business.searchWithTerm("Restaurants", sort: sort, categories: categories, deals: deals, distance: distance) {
+        currOffset = 0
+        Business.searchWithTerm("Restaurants", sort: sort, categories: categories, deals: deals, distance: distance, offset: currOffset) {
             (businesses: [Business]!, error: NSError!) -> Void in
             self.businesses = businesses
             self.tableView.reloadData()
         }
     }
     
-//    func scrollViewDidScroll(scrollView: UIScrollView) {
-//        if(!isMoreDataLoading) {
-//            // Calculate the position of one screen length before the bottom of the results
-//            let scrollViewContentHeight = tableView.contentSize.height
-//            let scrollOffsetThreshold = scrollViewContentHeight - tableView.bounds.size.height
-//            
-//            // When the user has scrolled past the threshold, start requesting
-//            if(scrollView.contentOffset.y > scrollOffsetThreshold && tableView.dragging) {
-//                isMoreDataLoading = true
-//                
-//            }
-//            
-//        }
-//    }
+    func scrollViewDidScroll(scrollView: UIScrollView) {
+        if(!isMoreDataLoading) {
+            // Calculate the position of one screen length before the bottom of the results
+            let scrollViewContentHeight = tableView.contentSize.height
+            let scrollOffsetThreshold = scrollViewContentHeight - tableView.bounds.size.height
+            
+            // When the user has scrolled past the threshold, start requesting
+            if(scrollView.contentOffset.y > scrollOffsetThreshold && tableView.dragging) {
+                isMoreDataLoading = true
+                currOffset = currOffset! + self.businesses.count
+                if currFilters == nil {
+                    Business.searchWithTerm("Restaurants", offset: currOffset) {
+                        (businesses: [Business]!, error: NSError!) -> Void in
+                        self.isMoreDataLoading = false
+                        if businesses.count == 0 {
+                            self.currOffset = self.currOffset! - self.businesses.count
+                        }
+                        for business in businesses {
+                            self.businesses.append(business)
+                        }
+                        self.tableView.reloadData()
+                    }
+                } else {
+                    let categories = currFilters!["categories"] as? [String]
+                    let deals = currFilters!["deals"] as? Bool
+                    let sort = YelpSortMode(rawValue: (currFilters!["sort"]!["code"] as? Int)!)!
+                    let distance = currFilters!["distance"]!["code"] as? Int
+                    Business.searchWithTerm("Restaurants", sort: sort, categories: categories, deals: deals, distance: distance, offset: currOffset) {
+                        (businesses: [Business]!, error: NSError!) -> Void in
+                        self.isMoreDataLoading = false
+                        if businesses.count == 0 {
+                            self.currOffset = self.currOffset! - self.businesses.count
+                        }
+                        for business in businesses {
+                            self.businesses.append(business)
+                        }
+                        self.tableView.reloadData()
+                    }
+                }
+                
+            }
+
+        }
+    }
     
     //# MARK: TableView Methods
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

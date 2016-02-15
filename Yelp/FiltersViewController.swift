@@ -41,8 +41,11 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.tableView.rowHeight = UITableViewAutomaticDimension
+        self.tableView.sectionHeaderHeight = 60
         initFilterTypes()
-        self.isExpanded = [false, false, false, true]
+        self.isExpanded = [false, false, false, false]
         
         currSortByFilter = (filters["sort"] == nil ? 0 : filters["sort"]!["code"] as? Int)
         if(filters["distance"] != nil) {
@@ -115,7 +118,11 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
                 return 1
             }
         case .Categories:
-            return 6
+            if isExpanded [3] == true {
+                return categoryOptions.count
+            } else {
+                return 6
+            }
         case .Unknown:
             return 0
         }
@@ -154,9 +161,15 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
             return cell
         case .Categories:
             let cell = tableView.dequeueReusableCellWithIdentifier("SwitchCell", forIndexPath: indexPath) as! SwitchCell
-            cell.switchLabel.text = categoryOptions[indexPath.row]["name"]
-            cell.delegate = self
-            cell.onSwitch.on = categorySwitchStates[indexPath.row] ?? false
+            if !isExpanded[3] && indexPath.row == 5 {
+                cell.switchLabel.text = "Show More..."
+                cell.onSwitch.hidden = true
+            } else {
+                cell.switchLabel.text = categoryOptions[indexPath.row]["name"]
+                cell.delegate = self
+                cell.onSwitch.on = categorySwitchStates[indexPath.row] ?? false
+                cell.onSwitch.hidden = false
+            }
             return cell
         case .Unknown:
             return tableView.dequeueReusableCellWithIdentifier("SwitchCell", forIndexPath: indexPath) as! SwitchCell
@@ -172,9 +185,9 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
         let filterType: filterTypes = filterTypeFromIndex(indexPath.section)
         switch(filterType) {
         case .Deals:
-            print ("here")
+            return
         case .SortBy:
-            if isExpanded[1] == true {
+            if isExpanded[1] {
                 if indexPath.row != currSortByFilter {
                     currSortByFilter = indexPath.row
                 }
@@ -185,7 +198,7 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
             tableView.reloadSections(NSIndexSet(index: 1), withRowAnimation: UITableViewRowAnimation.Fade)
             
         case .Distance:
-            if isExpanded[2] == true {
+            if isExpanded[2] {
                 if indexPath.row != currMaxDistance{
                     currMaxDistance = indexPath.row
                 }
@@ -195,9 +208,12 @@ class FiltersViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
             tableView.reloadSections(NSIndexSet(index: 2), withRowAnimation: UITableViewRowAnimation.Fade)
         case .Categories:
-            print ("over there")
+            if !isExpanded [3] && indexPath.row == 5 {
+                isExpanded [3] = true
+            }
+            tableView.reloadSections(NSIndexSet(index: 3), withRowAnimation: UITableViewRowAnimation.Fade)
         case .Unknown:
-            print ("all the way over there")
+            return
         }
     }
     
@@ -424,8 +440,6 @@ extension FiltersViewController: SwitchCellDelegate  {
             shouldIncludeDeals = value
         case .SortBy:
             print ("Sort By")
-//            testSwitchIsToggled = value
-//            tableView.reloadSections(NSIndexSet(index: 1), withRowAnimation: UITableViewRowAnimation.Fade)
         case .Distance:
             print ("Distance")
         case .Categories:
