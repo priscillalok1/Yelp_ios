@@ -191,7 +191,9 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
     
     func searchBarCancelButtonClicked(searchBar: UISearchBar) {
         searchBar.endEditing(true)
+        searchBar.text = ""
         searchActive = false
+        self.tableView.reloadData()
     }
     
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
